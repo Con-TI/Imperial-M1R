@@ -7,7 +7,7 @@ import dearpygui.dearpygui as dpg
 import numpy as np
 
 dpg.create_context()
-dpg.create_viewport(title='FPUT Simulation', width=1080, height=800)
+dpg.create_viewport(title='FPUT Simulation', width=1150, height=700)
 
 """ Global flags """
 RUNNING = False
@@ -87,7 +87,6 @@ def update_linear_energy():
     linear_energy.pop(0)
     dpg.set_value("linear fput energy", [x_time, linear_energy])
     
-    
 def update_non_linear_energy():
     global q_nonlinear, dot_q_nonlinear, nonlinear_energy
     energy = calculate_fput_H(q_nonlinear, dot_q_nonlinear)
@@ -96,6 +95,7 @@ def update_non_linear_energy():
     dpg.set_value("nonlinear fput energy", [x_time, nonlinear_energy])
 
 def dynamic_energy_axis():
+    global initial_energy
     high_energy = max(initial_energy,np.max(nonlinear_energy),np.max(linear_energy))
     low_energy = min(initial_energy,np.min(nonlinear_energy),np.min(linear_energy))
     dpg.set_axis_limits("energy_axis", low_energy*0.9, high_energy*1.1)
@@ -110,7 +110,7 @@ pygui code
 # Save button functionality
 def save_values():
     global n, alpha, beta, dt, x, q_linear, dot_q_linear, q_nonlinear, dot_q_nonlinear, FRAME, frame_update_rate
-    global x_time, linear_energy, nonlinear_energy
+    global x_time, initial_energy, linear_energy, nonlinear_energy
     n = int(dpg.get_value("slider_n"))
     alpha = dpg.get_value("slider_alpha")
     beta = dpg.get_value("slider_beta")
@@ -131,7 +131,7 @@ def save_values():
     linear_energy = [initial_energy for i in range(100)]
     nonlinear_energy = [initial_energy for i in range(100)]    
 
-    dpg.set_value("params display", f"Current values:\n n={n},\n alpha={alpha},\n beta={beta},\n dt={dt}")
+    dpg.set_value("params display", f"Current values:\n n={n},\n alpha={alpha},\n beta={beta},\n dt={dt},\n axes limit={y_lim},\n frame update rate={frame_update_rate}")
     dpg.set_value("reference energy", [x_time, [initial_energy for i in range(100)]])
     dpg.set_axis_limits("energy_axis", initial_energy*0.7, initial_energy*1.3)
 
@@ -146,6 +146,7 @@ with dpg.window(label="Parameters", pos=(0,0), width=450,height=650):
         
         Other params:
         - axes limits : y-axis limits
+        - frame update rate: updates ever f frames
         
         Note: Hitting save will reset the current simulation.
         """
